@@ -21,7 +21,7 @@ CREATE TABLE  IF NOT EXISTS user
 )COMMENT '用户表';
 
 -- 笔记表，有文本，标签，所属用户，长文本，可见性，逻辑删除
-CREATE TABLE IF NOT EXISTS diarys
+CREATE TABLE IF NOT EXISTS note
 (
     id          BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '笔记id',
     user_id     BIGINT NOT NULL COMMENT '日记所有者',
