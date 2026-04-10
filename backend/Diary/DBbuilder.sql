@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS friendship
     id          BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id     BIGINT COMMENT '用户',
     friend_id   BIGINT COMMENT '好友',
-    state       TINYINT DEFAULT 0, -- 0待同意 1已同意
+    state       TINYINT DEFAULT 0, -- 0待同意 1已同意 2已拒绝 3已删除
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '结交时间',
     UNIQUE KEY (user_id,friend_id) --  同一对朋友关系只能出现一次
 )COMMENT '关系表';

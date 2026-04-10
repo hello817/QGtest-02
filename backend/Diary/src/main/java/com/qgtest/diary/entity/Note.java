@@ -15,17 +15,16 @@ public class Note {
     private long userId;
     private String content;
     private String tags;
-    private Integer visibility;
+    private Integer visibility;//这里可以考虑做枚举常量
     private Integer isDelete;
     private LocalDateTime createTime;
     private LocalDateTime updaTetime;
 
     public Note(){};
-    public Note(long userId,String content,String tags,Integer visibility){
+    public Note(long userId,String content,String tags){
         this.userId = userId;
         this.content = content;
-        this.tags = tags;//要考虑一下怎么更新、添加tag啊
-        this.visibility = visibility;
+        this.tags = tags;//要考虑一下怎么更新、添加tags
         this.createTime = LocalDateTime.now();
         this.updaTetime = LocalDateTime.now();
     }

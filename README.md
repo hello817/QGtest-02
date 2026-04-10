@@ -7,8 +7,10 @@
 
 - 第四次提交：完工entity，接下来写mapper接口 
 
+- 第五次提交：写了对应的三个mapper接口，ai的mapper之后添加
+
 ......
 
-第114514次提交 为READEME 添加一个每次commit都会生成的酷炫的石墩子，由20张avg图组成
+第114514次提交 为READEME 添加一个每次commit都会生成的会旋转的酷炫的石墩子，由20张avg图组成
 
 ![Stone Badge](https://stone.professorlee.work/api/stone/hello817/QGtest-02)
