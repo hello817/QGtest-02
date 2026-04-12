@@ -23,12 +23,12 @@ public class User {
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 
-    public User(){this(null,null,null,null,null);}
-    public User(String username,String account,String password,String emil,String phone){
+    public User(){}
+    public User(String username,String account,String password,String email,String phone){
         this.username = username;
         this.account = account;
         this.password = password;
-        this.email = emil;
+        this.email = email;
         this.phone = phone;
         this.createTime = LocalDateTime.now();
         this.updateTime = LocalDateTime.now();
