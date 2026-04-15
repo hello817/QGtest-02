@@ -18,7 +18,7 @@ public interface NoteMapper {
     @Select("select * from note where user_id = #{userId} and tags like %#{tags}%")
     Note selectByTags(long userId,String tags);
     @Select("select * from note where visibility = 1")
-    Note selectAllVisibleNote();//查找所有可见（所有用户共享的）笔记，最好是只读或者类似fork笔记到自己的知识库，或者这部分也可以不做？
+    List<Note> selectAllVisibleNote();//查找所有可见（所有用户共享的）笔记，最好是只读或者类似fork笔记到自己的知识库，或者这部分也可以不做？
     @Select("select * from note where user_id = #{userId} order by create_time desc ")//或许应该换个排序方式
     List<Note> selectByUserId(long userId);
     //删除:回收站+永久删除
