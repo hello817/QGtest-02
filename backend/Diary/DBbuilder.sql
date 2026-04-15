@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS note
     user_id     BIGINT NOT NULL COMMENT '日记所有者',
     content     LONGTEXT COMMENT '文本', -- longtext最大存储量可大4gb！！
     tags        VARCHAR(500) COMMENT '标签', -- 用逗号分隔
-    visibility  TINYINT DEFAULT 0, -- 0私有 1好友可见 2全部可见
+    visibility  TINYINT DEFAULT 0, -- 0私有 1好友可见但不可编辑 2好友可见可编辑 3公开
     is_delete   TINYINT DEFAULT 0, -- 1删除 0未删除
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

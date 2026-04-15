@@ -24,7 +24,7 @@ public class JwtUtils {
     }
 
     //生成token
-    public String generateToken(long userId,String account){
+    public String generateToken(Long userId, String account){
         Map<String,Object> claims = new HashMap<>();
         claims.put("userId",userId);
         claims.put("account",account);
@@ -54,11 +54,10 @@ public class JwtUtils {
         }
     }
     //获取id
-    public long getIdByToken(String token){
+    public Long getIdByToken(String token){
         Claims claims = parseToken(token);
-        Integer userIdInt = claims.get("userId",Integer.class);
-        long userId = userIdInt.longValue();//类型转换
-        return userId;
+        Integer userIdInt = claims.get("userId", Integer.class);
+        return userIdInt != null ? userIdInt.longValue() : null;
     }
     public String getAccountByToken(String token){
         Claims claims = parseToken(token);

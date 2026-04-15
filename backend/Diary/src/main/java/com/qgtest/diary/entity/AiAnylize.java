@@ -5,23 +5,26 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.lang.ref.SoftReference;
 import java.time.LocalDateTime;
 
 @Data
 @TableName("ai_anylize")
 public class AiAnylize {
     @TableId(type = IdType.AUTO)
-    private long id;
-    private long note_id;
+    private Long id;
+    private Long noteId;
     private String summary;
-    private String tags_sgt;
+    private String tags;
+    private String keyPoint;
     private LocalDateTime createTime;
 
     public AiAnylize(){}
-    public AiAnylize(long note_id , String summary , String tags_sgt){
-        this.note_id = note_id;
+    public AiAnylize(Long noteId, String summary, String keyPoint, String tags){
+        this.noteId = noteId;
         this.summary = summary;
-        this.tags_sgt = tags_sgt;
+        this.tags = tags;
+        this.keyPoint = keyPoint;
         this.createTime = LocalDateTime.now();
     }
 }

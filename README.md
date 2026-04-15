@@ -13,8 +13,12 @@
 
 - 第七次提交：做了登录和注册
 
+- 第八九十次提交：(fix):修复石山中的bug
+
+- 第十一次提交：(fix):用枚举替换常量,(feat):将笔记和用户业务分离,(feat)：补充图片上传逻辑
+
 ......
 
-第114514次提交 为READEME 添加一个每次commit都会生成的会旋转的酷炫的石墩子，由20张avg图组成
+第114514次提交 为READEME 添加一个每次commit都会根据短哈希改变颜色的会旋转的酷炫的石墩子，由20张svg图组成
 
 ![Stone Badge](https://stone.professorlee.work/api/stone/hello817/QGtest-02)

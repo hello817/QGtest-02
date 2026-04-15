@@ -36,14 +36,13 @@ public class UserService {
     @Autowired
     UserMapper userMapper;
     @Autowired
-    NoteMapper noteMapper;
-    @Autowired
     FriendshipMapper friendshipMapper;
-    @Autowired
-    AiAnylizeMapper aiAnylizeMapper;
-    @Autowired
-    AIService aiService;
+    // 邮箱正则表达式
     public static final Pattern EMAIL = Pattern.compile("^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$");
+    // 手机号正则表达式（中国大陆11位手机号）
+    public static final Pattern PHONE = Pattern.compile("^1[3-9]\\d{9}$");
+    // 密码规则：8-20位，包含字母和数字
+    public static final Pattern PASSWORD = Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,20}$");
     //加密工具，"SHA-256"的256位存储
     public static class EncryptUtil{
         public static String encrypt(String input){
@@ -84,28 +83,49 @@ public class UserService {
     }
     //注册
     @Transactional
-    public void register( String account , String email,String phone,String password,String confirmPwd){
-        if(email!=null && !email.isEmpty()){//邮箱校验
+    public void register(String account, String email, String phone, String password, String confirmPwd){
+        // 邮箱校验
+        if(email != null && !email.isEmpty()){
             if(!EMAIL.matcher(email).matches()){
-                throw new BizException(401,"邮箱格式错误");
+                throw new BizException(401, "邮箱格式错误");
             }
             User existUser = userMapper.selectDerectByEmail(email);
-            if(existUser !=null){
+            if(existUser != null){
                 throw new BizException("邮箱已被注册");
             }
         }else{
-            throw new BizException(401,"邮箱不能为空");
+            throw new BizException(401, "邮箱不能为空");
         }
-        if(phone!=null || !phone.isEmpty()){//邮箱校验
+        
+        // 手机号校验
+        if(phone != null && !phone.isEmpty()){
+            if(!PHONE.matcher(phone).matches()){
+                throw new BizException(401, "手机号格式错误（应为11位中国大陆手机号）");
+            }
             User existUser = userMapper.selectDrectByPhone(phone);
-            if(existUser !=null){
+            if(existUser != null){
                 throw new BizException("手机号已被注册");
             }
         }else{
-            throw new BizException(401,"手机号不能为空");
+            throw new BizException(401, "手机号不能为空");
         }
-        if(account == null || account.isEmpty()){throw new BizException(401,"账号不能为空");}
-        if(!password.equals(confirmPwd)){throw new BizException(401,"确认密码错误");}
+        
+        // 账号校验
+        if(account == null || account.isEmpty()){
+            throw new BizException(401, "账号不能为空");
+        }
+        
+        // 密码校验
+        if(password == null || password.isEmpty()){
+            throw new BizException(401, "密码不能为空");
+        }
+        if(!PASSWORD.matcher(password).matches()){
+            throw new BizException(401, "密码格式错误（需8-20位，包含字母和数字）");
+        }
+        if(!password.equals(confirmPwd)){
+            throw new BizException(401, "确认密码错误");
+        }
+        
         String encrypted = EncryptUtil.encrypt(password);
         User user = new User();
         user.setAccount(account);
@@ -116,7 +136,7 @@ public class UserService {
     }
     //修改座右铭
     @Transactional
-    public void resetMotto(String motto,long userId){
+    public void resetMotto(String motto, Long userId){
         User user = userMapper.selectById(userId);
         user.setMotto(motto);
         userMapper.update(user);
@@ -158,7 +178,7 @@ public class UserService {
     }
     //修改密码
     @Transactional
-    public void resetPassword(long userId,String oldPwd,String newPwd){
+    public void resetPassword(Long userId, String oldPwd, String newPwd){
         User user = userMapper.selectById(userId);
         if(!EncryptUtil.encrypt(oldPwd).equals(user.getPassword())){
             throw new BizException("原始密码错误");
@@ -167,10 +187,10 @@ public class UserService {
         user.setPassword(encrypted);
         userMapper.update(user);
     }
-    //好友部分---------------------------------------------------------------
+    //好友部分(这里因为和user强关联所以不动了)---------------------------------------------------------------
     //查询所有好友，搜索好友（邮箱/手机号）模糊搜索，查询是否有好友请求,添加好友，同意/拒绝,删除好友
     @Transactional
-    public List<User> findAllFriends(long userId){
+    public List<User> findAllFriends(Long userId){
         return friendshipMapper.selectAllFriends(userId);
     }
     //查询用户，后面controller别忘了用mapper里查关系的方法给已经是好友的用户加个标识
@@ -180,26 +200,26 @@ public class UserService {
     }
     //查找所有待同意请求
     @Transactional
-    public List<Friendship> findAllWaittingRequest(long userId){
-        return friendshipMapper.selectAllRequests(userId,0);
+    public List<Friendship> findAllWaittingRequest(Long userId){
+        return friendshipMapper.selectAllRequests(userId, 0);
     }
     //已同意请求
     @Transactional
-    public List<Friendship> findAllAcceptedRequest(long userId){
-        return friendshipMapper.selectAllRequests(userId,1);
+    public List<Friendship> findAllAcceptedRequest(Long userId){
+        return friendshipMapper.selectAllRequests(userId, 1);
     }
     //被拒绝请求
     @Transactional
-    public List<Friendship> findAllRejectedRequest(long userId){
-        return friendshipMapper.selectAllRequests(userId,2);
+    public List<Friendship> findAllRejectedRequest(Long userId){
+        return friendshipMapper.selectAllRequests(userId, 2);
     }
     //更改好友状态/申请状态
     @Transactional
-    public void resetFriendRequestState(long userId,long friendId,int state){
+    public void resetFriendRequestState(Long userId, Long friendId, Integer state){
         friendshipMapper.update(userId,friendId,state);
     }
     @Transactional
-    public void sendFriendRequest(long userId,long friendId){
+    public void sendFriendRequest(Long userId, Long friendId){
         // 不能添加自己为好友
         if(userId == friendId){
             throw new BizException("不能添加自己为好友");
@@ -231,44 +251,5 @@ public class UserService {
             Friendship friendship = new Friendship(userId,friendId);
             friendshipMapper.insert(friendship);
         }
-    }
-    //笔记操作部分------------------------------------------------------------
-    //查询所有私有笔记，查询所有公开笔记,添加笔记，删除笔记，更新笔记，更新标签,更改笔记可见性
-    @Transactional
-    public List<Note> findMyNote(long userId){
-        return noteMapper.selectByUserId(userId);
-    }
-    @Transactional
-    public List<Note> findAllVisibleNote(){
-        return noteMapper.selectAllVisibleNote();
-    }
-    @Transactional
-    public void addNote(long userId,String content,String tags){
-        Note note = new Note(userId,content,tags);
-        noteMapper.insert(note);
-    }
-    //回收站
-    @Transactional
-    public void trashNote(long noteId){
-        noteMapper.trashById(noteId,1);
-    }
-    //取出
-    @Transactional
-    public void cancelTrashNote(long noteId){
-        noteMapper.trashById(noteId,0);
-    }
-    @Transactional
-    public void deleteNote(Long noteId) {
-        //删除笔记
-        noteMapper.deleteById(noteId);
-
-        //删除关联的AI分析
-        aiAnylizeMapper.deleteByNoteId(noteId);
-    }
-    //更新
-    public void updateNoteContent(long noteId,String content){
-        Note note = noteMapper.selectById(noteId);
-        note.setContent(content);
-        noteMapper.update(note);
     }
 }

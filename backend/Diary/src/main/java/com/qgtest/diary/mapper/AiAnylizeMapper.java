@@ -11,7 +11,7 @@ public interface AiAnylizeMapper extends BaseMapper<AiAnylize> {
 
     //插入AI分析结果
     @Insert("INSERT INTO ai_anylize(note_id, summary, key_point, tags_sgt, create_time) " +
-            "VALUES (#{note_id}, #{summary}, #{key_point}, #{tags_sgt}, NOW())")
+            "VALUES (#{noteId}, #{summary}, #{keyPoint}, #{tags}, NOW())")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(AiAnylize aiAnylize);
 

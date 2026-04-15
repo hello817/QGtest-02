@@ -34,7 +34,7 @@ public class JwtInterceptor implements HandlerInterceptor {
             response.getWriter().write("{\"code\":401,\"message\":\"token无效或token已过期\"}");//这里要用反斜杠转义“
             return false;
         }//其实这里好像并没有必要，下面get不过的话全局异常处理会捕获异常
-        long userId = jwtUtils.getIdByToken(token);
+        Long userId = jwtUtils.getIdByToken(token);
         request.setAttribute("userId",userId);
         return true;
     }
