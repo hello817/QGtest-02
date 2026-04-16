@@ -1,6 +1,7 @@
 package com.qgtest.diary.common.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.qgtest.diary.common.BizException;
 import lombok.Getter;
 
 @Getter
@@ -18,4 +19,15 @@ public enum Visibility {
         this.code = code;
         this.desc = desc;
     }
+    public static Visibility formCode(Integer code){
+      if(code==null){
+          return null;
+      }
+      for(Visibility visibility : values()){
+          if(visibility.code == code){
+              return visibility;
+          }
+      }
+      throw new BizException("无效的可见性级别" + code);
+    };
 }

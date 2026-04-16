@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS note
 (
     id          BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '笔记id',
     user_id     BIGINT NOT NULL COMMENT '日记所有者',
+    title       VARCHAR(25) COMMENT '标题',
     content     LONGTEXT COMMENT '文本', -- longtext最大存储量可大4gb！！
     tags        VARCHAR(500) COMMENT '标签', -- 用逗号分隔
     visibility  TINYINT DEFAULT 0, -- 0私有 1好友可见但不可编辑 2好友可见可编辑 3公开
@@ -56,3 +57,11 @@ CREATE TABLE IF NOT EXISTS ai_anylize
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY (note_id)
 )COMMENT 'ai分析结果';
+CREATE TABLE IF NOT EXISTS note_history
+(
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  note_id BIGINT NOT NULL,
+  view_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_user_time (user_id, view_time)
+);

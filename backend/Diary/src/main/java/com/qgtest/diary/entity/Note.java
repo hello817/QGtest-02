@@ -14,12 +14,13 @@ public class Note {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long userId;
+    public String title;
     private String content;
     private String tags;
     private Visibility visibility;//这里可以考虑做枚举常量
     private Integer isDelete;
     private LocalDateTime createTime;
-    private LocalDateTime updaTetime;
+    private LocalDateTime updateTime;
 
     public Note(){};
     public Note(Long userId, String content, String tags){
@@ -27,6 +28,6 @@ public class Note {
         this.content = content;
         this.tags = tags;//要考虑一下怎么更新、添加tags
         this.createTime = LocalDateTime.now();
-        this.updaTetime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 }

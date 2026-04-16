@@ -1,11 +1,11 @@
 package com.qgtest.diary.controller;
 
 import com.qgtest.diary.common.Result;
+import com.qgtest.diary.dto.userDTO.*;
 import com.qgtest.diary.entity.User;
 import com.qgtest.diary.service.UserService;
 import com.qgtest.diary.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +30,7 @@ public class UserController {
     public Result<LoginVO> login(@RequestBody LoginDTO dto) {
         User user = userService.login(dto.getKeyword(), dto.getPassword());
         String token = jwtUtils.generateToken(user.getId(), user.getAccount());
-        LoginVO vo = new LoginVO(token, user.getId(), user.getAccount(), user.getNickname(), user.getAvatar());
+        LoginVO vo = new LoginVO(token, user.getId(), user.getAccount(), user.getUsername(), user.getAvatar());
         return Result.success(vo);
     }
     //修改密码
