@@ -12,78 +12,171 @@
         <p class="text-gray-500 text-sm mt-2">极简智能，记录灵感</p>
       </div>
 
-      <form @submit.prevent="handleLogin" class="space-y-5">
+      <form @submit.prevent="handleAuth" class="space-y-5">
         <div class="relative group">
           <User class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
-          <input type="text" placeholder="邮箱或手机号" class="w-full bg-white/50 border border-gray-200 rounded-full py-3 pl-12 pr-4 text-gray-700 outline-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white" />
+          <input v-model="form.keyword" type="text" placeholder="邮箱 / 手机号 / 账号" class="w-full bg-white/50 border border-gray-200 rounded-full py-3 pl-12 pr-4 text-gray-700 outline-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white" />
         </div>
 
         <div class="relative group">
           <Lock class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
-          <input :type="showPwd ? 'text' : 'password'" placeholder="密码" class="w-full bg-white/50 border border-gray-200 rounded-full py-3 pl-12 pr-12 text-gray-700 outline-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white" />
+          <input :type="showPwd ? 'text' : 'password'" v-model="form.password" placeholder="密码（6-20位）" class="w-full bg-white/50 border border-gray-200 rounded-full py-3 pl-12 pr-12 text-gray-700 outline-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white" />
           <button type="button" @click="showPwd = !showPwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
             <Eye v-if="!showPwd" class="w-4 h-4" />
             <EyeOff v-else class="w-4 h-4" />
           </button>
         </div>
 
-        <button @click="$router.push('/notes')" type="button" class="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-medium py-3 rounded-full shadow-md shadow-indigo-200 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:scale-95">
-          登录
+        <transition name="fade">
+          <div v-if="!isLogin" class="space-y-4">
+            <div class="relative group">
+              <User class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+              <input v-model="form.account" type="text" placeholder="账号（必填）" class="w-full bg-white/50 border border-gray-200 rounded-full py-3 pl-12 pr-4 text-gray-700 outline-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white" />
+            </div>
+            <div class="relative group">
+              <Mail class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+              <input v-model="form.email" type="text" placeholder="邮箱（必填）" class="w-full bg-white/50 border border-gray-200 rounded-full py-3 pl-12 pr-4 text-gray-700 outline-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white" />
+            </div>
+            <div class="relative group">
+              <Phone class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+              <input v-model="form.phone" type="tel" placeholder="手机号（必填）" class="w-full bg-white/50 border border-gray-200 rounded-full py-3 pl-12 pr-4 text-gray-700 outline-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white" />
+            </div>
+            <div class="relative group">
+              <CheckCircle class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+              <input v-model="form.confirmPassword" :type="showPwd ? 'text' : 'password'" placeholder="确认密码（6-20位）" class="w-full bg-white/50 border border-gray-200 rounded-full py-3 pl-12 pr-4 text-gray-700 outline-none transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white" />
+            </div>
+          </div>
+        </transition>
+
+        <button type="submit" :disabled="loading" class="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-medium py-3 rounded-full shadow-md shadow-indigo-200 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:scale-95 disabled:opacity-50">
+          {{ loading ? '处理中...' : (isLogin ? '登录' : '注册') }}
         </button>
       </form>
 
       <div class="mt-6 text-center text-sm">
-        <span class="text-gray-500">还没有账号？</span>
-        <a href="#" class="text-indigo-600 hover:text-indigo-700 font-medium ml-1">去注册</a>
+        <span class="text-gray-500">{{ isLogin ? '还没有账号？' : '已有账号？' }}</span>
+        <button @click="toggleMode" class="text-indigo-600 hover:text-indigo-700 font-medium ml-1">{{ isLogin ? '去注册' : '去登录' }}</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { User, Lock, Eye, EyeOff, Sparkles } from 'lucide-vue-next';
-import request from '../utils/request'; // 引入我们封装的 axios
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { User, Lock, Eye, EyeOff, Sparkles, Mail, Phone, CheckCircle } from 'lucide-vue-next'
+import request from '../utils/request'
 
-const router = useRouter();
-const isLogin = ref(true); // 切换登录/注册状态
-const showPwd = ref(false);
+const router = useRouter()
+const showPwd = ref(false)
+const isLogin = ref(true)
+const loading = ref(false)
 
 const form = ref({
+  keyword: '',
+  password: '',
   account: '',
-  password: ''
-});
+  email: '',
+  phone: '',
+  confirmPassword: ''
+})
+
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+const phoneRegex = /^1[3-9]\d{9}$/
+
+const validateEmail = (email) => {
+  return emailRegex.test(email)
+}
+
+const validatePhone = (phone) => {
+  return phoneRegex.test(phone)
+}
+
+const validatePassword = (password) => {
+  return password.length >= 6 && password.length <= 20
+}
+
+const toggleMode = () => {
+  isLogin.value = !isLogin.value
+  form.value = {
+    keyword: '',
+    password: '',
+    account: '',
+    email: '',
+    phone: '',
+    confirmPassword: ''
+  }
+}
 
 const handleAuth = async () => {
-  if (!form.value.account || !form.value.password) {
-    alert('请输入账号和密码');
-    return;
+  if (isLogin.value) {
+    if (!form.value.keyword || !form.value.password) {
+      alert('请输入邮箱/手机号/账号和密码')
+      return
+    }
+    if (!validatePassword(form.value.password)) {
+      alert('密码长度需在6-20位之间')
+      return
+    }
+  } else {
+    if (!form.value.account || !form.value.email || !form.value.phone || !form.value.password || !form.value.confirmPassword) {
+      alert('请填写完整注册信息')
+      return
+    }
+    if (!validateEmail(form.value.email)) {
+      alert('请输入正确的邮箱格式')
+      return
+    }
+    if (!validatePhone(form.value.phone)) {
+      alert('请输入正确的手机号格式（11位数字，以1开头）')
+      return
+    }
+    if (!validatePassword(form.value.password)) {
+      alert('密码长度需在6-20位之间')
+      return
+    }
+    if (form.value.password !== form.value.confirmPassword) {
+      alert('两次密码输入不一致')
+      return
+    }
   }
 
+  loading.value = true
   try {
     if (isLogin.value) {
-      // 🌟 对接真实登录接口
-      const res = await request.post('/users/login', form.value);
-      if (res.code === 200) {
-        localStorage.setItem('token', res.data); // 保存 Token
-        router.push('/notes'); // 跳转主页
+      const payload = {
+        keyword: form.value.keyword,
+        password: form.value.password
+      }
+      const res = await request.post('/users/login', payload)
+      if (res.code === 200 && res.data) {
+        localStorage.setItem('token', res.data.token)
+        localStorage.setItem('userInfo', JSON.stringify(res.data))
+        router.push('/notes')
       } else {
-        alert(res.msg || '登录失败');
+        alert(res.msg || '登录失败')
       }
     } else {
-      // 🌟 对接真实注册接口
-      const res = await request.post('/users/register', form.value);
+      const payload = {
+        account: form.value.account,
+        email: form.value.email,
+        phone: form.value.phone,
+        password: form.value.password,
+        confirmPassword: form.value.confirmPassword
+      }
+      const res = await request.post('/users/register', payload)
       if (res.code === 200) {
-        alert('注册成功，请登录');
-        isLogin.value = true;
+        alert('注册成功，请登录')
+        toggleMode()
       } else {
-        alert(res.msg || '注册失败');
+        alert(res.msg || '注册失败')
       }
     }
   } catch (error) {
-    console.error('网络请求失败:', error);
-    alert('连接服务器失败，请检查 Java 后端是否启动');
+    console.error('网络请求失败:', error)
+    alert('连接服务器失败，请检查后端服务是否启动')
+  } finally {
+    loading.value = false
   }
-};
+}
 </script>

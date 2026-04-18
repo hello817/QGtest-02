@@ -1,8 +1,11 @@
 import axios from 'axios'
 
 const request = axios.create({
-  baseURL: 'http://localhost:8801/api',
-  timeout: 5000
+  baseURL: '/api',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
 })
 
 request.interceptors.request.use(config => {
@@ -13,9 +16,12 @@ request.interceptors.request.use(config => {
   return config
 })
 
-request.interceptors.response.use(response => {
-  return response.data
-}, error => {
+request.interceptors.response.use(response => response.data, error => {
+  const status = error.response?.status
+  if (status === 401) {
+    localStorage.removeItem('token')
+    window.location.href = '/login'
+  }
   return Promise.reject(error)
 })
 

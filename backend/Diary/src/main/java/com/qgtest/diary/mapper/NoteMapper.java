@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface NoteMapper extends BaseMapper {
+public interface NoteMapper extends BaseMapper<Note> {
     //这里先做一下基础的+更改可见性，逻辑删除（回收站），添加标签，查找好友笔记,有缺的想到再做吧
     @Insert("insert into note(user_id,title,content,tags) values (#{userId},#{title},#{content},#{tags})")//突然发现笔记好像没做标题...?
     int insert(Note note );

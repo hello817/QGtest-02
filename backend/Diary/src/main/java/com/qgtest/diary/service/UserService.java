@@ -130,6 +130,7 @@ public class UserService {
         String encrypted = EncryptUtil.encrypt(password);
         User user = new User();
         user.setAccount(account);
+        user.setUsername("用户" + account);
         user.setEmail(email);
         user.setPhone(phone);
         user.setPassword(encrypted);
@@ -296,5 +297,11 @@ public class UserService {
             throw new BizException("分组名称不能为空");
         }
         return friendshipMapper.selectFriendsByGroup(userId, groupTag);
+    }
+    @Transactional
+    public void resetUsername (String username,Long userId){
+        User user = userMapper.selectById(userId);
+        user.setUsername(username);
+        userMapper.update(user);
     }
 }

@@ -3,6 +3,7 @@ package com.qgtest.diary.controller;
 import com.qgtest.diary.common.Result;
 import com.qgtest.diary.dto.userDTO.*;
 import com.qgtest.diary.entity.User;
+import com.qgtest.diary.mapper.UserMapper;
 import com.qgtest.diary.service.UserService;
 import com.qgtest.diary.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class UserController {
     @Autowired
     private UserService userService;
     @Autowired private JwtUtils jwtUtils;  // JWT工具
+    @Autowired
+    private UserMapper userMapper;
+
     //注册
     @PostMapping("/register")
     public Result<Void> register(@RequestBody RegisterDTO dto) {
@@ -59,6 +63,31 @@ public class UserController {
     public Result<List<User>> searchUsers(@RequestParam String keyword) {
         return Result.success(userService.findUserByKeyWord(keyword));
     }
+    
+    //获取当前用户信息
+    @GetMapping("/info")
+    public Result<UserInfoVO> getUserInfo(@RequestAttribute Long userId) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            return Result.erro("用户不存在");
+        }
+        UserInfoVO vo = new UserInfoVO();
+        vo.setUserId(user.getId());
+        vo.setUsername(user.getUsername());
+        vo.setAccount(user.getAccount());
+        vo.setEmail(user.getEmail());
+        vo.setPhone(user.getPhone());
+        vo.setAvatar(user.getAvatar());
+        vo.setMotto(user.getMotto());
+        return Result.success(vo);
+    }
+    
     //===================================================================================
     //再想到什么写下面吧
+    @PutMapping("username")
+    public Result<Void> updateUsername(@RequestBody @Valid UpdateUsernameDTO dto,
+                                    @RequestAttribute Long userId) {
+        userService.resetUsername(dto.getUsername(), userId);
+        return Result.success();
+    }
 }
