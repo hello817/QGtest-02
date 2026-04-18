@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
         return Result.erro(e.getCode(),e.getMessage());
     }
     //Exception，处理除了biz以外的所有错误，用来兜底
-    @ExceptionHandler(BizException.class)
+    @ExceptionHandler(Exception.class)
     public Result<String> ExceptionHandler(Exception e){
         log.error("系统异常",e);
         return Result.erro("系统繁忙，请稍后再试");

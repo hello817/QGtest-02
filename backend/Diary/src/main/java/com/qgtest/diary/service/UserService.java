@@ -2,6 +2,7 @@ package com.qgtest.diary.service;
 
 import com.qgtest.diary.common.BizException;
 import com.qgtest.diary.common.Result;
+import com.qgtest.diary.common.enums.FriendshipStatus;
 import com.qgtest.diary.entity.AiAnylize;
 import com.qgtest.diary.entity.Friendship;
 import com.qgtest.diary.entity.Note;
@@ -219,7 +220,7 @@ public class UserService {
         friendshipMapper.update(userId,friendId,state);
     }
     @Transactional
-    public void sendFriendRequest(Long userId, Long friendId){
+    public void sendFriendRequest(Long userId, Long friendId ,String groupTag){
         // 不能添加自己为好友
         if(userId == friendId){
             throw new BizException("不能添加自己为好友");
@@ -232,24 +233,68 @@ public class UserService {
         }
 
         // 检查是否已经是好友关系（双向检查）
-        Friendship existingRelation1 = friendshipMapper.selectById(userId, friendId);
-        Friendship existingRelation2 = friendshipMapper.selectById(friendId, userId);
+        Friendship existingRelation1 = friendshipMapper.selectByFriendId(userId, friendId);
+        Friendship existingRelation2 = friendshipMapper.selectByFriendId(friendId, userId);
 
         if(existingRelation1 != null || existingRelation2 != null){
             Friendship existing = existingRelation1 != null ? existingRelation1 : existingRelation2;
 
             // 根据状态给出不同提示
-            if(existing.getState() == 1){
+            if(existing.getStatus().getCode() == 1){
                 throw new BizException("你们已经是好友了");
-            }else if(existing.getState() == 0){
+            }else if(existing.getStatus().getCode() == 0){
                 throw new BizException("好友申请已发送，等待对方同意");
-            }else if(existing.getState() == 2||existing.getState() == 3){
-                existing.setState(0);
-                friendshipMapper.update(existing.getUserId(),existing.getFriendId(),existing.getState());
+            }else if(existing.getStatus().getCode() == 2||existing.getStatus().getCode() == 3){
+                existing.setStatus(FriendshipStatus.formCode(0));
+                friendshipMapper.update(existing.getUserId(),existing.getFriendId(),existing.getStatus().getCode());
             }
         }else{
-            Friendship friendship = new Friendship(userId,friendId);
+            Friendship friendship = new Friendship(userId,friendId,groupTag);
             friendshipMapper.insert(friendship);
         }
+    }
+    public Friendship getFriendshipById(Long id){
+        return friendshipMapper.selectById(id);
+    }
+    //好友分组相关
+    /**
+     * 修改好友分组
+     */
+    @Transactional
+    public void updateFriendGroup(Long userId, Long friendId, String groupTag) {
+        if (groupTag == null || groupTag.trim().isEmpty()) {
+            throw new BizException("分组名称不能为空");
+        }
+
+        Friendship friendship = friendshipMapper.isFriend(userId, friendId);
+        if (friendship == null || friendship.getStatus().getCode() != 1) {
+            throw new BizException("不是好友关系");
+        }
+
+        int result = friendshipMapper.updateFriendGroup(userId, friendId, groupTag);
+        if (result == 0) {
+            throw new BizException("修改分组失败");
+        }
+    }
+
+    /**
+     * 查询用户的所有分组
+     */
+    public List<String> getUserGroups(Long userId) {
+        List<String> groups = friendshipMapper.selectUserGroups(userId);
+        if (groups.isEmpty()) {
+            return List.of("默认");
+        }
+        return groups;
+    }
+
+    /**
+     * 查询指定分组的好友
+     */
+    public List<User> getFriendsByGroup(Long userId, String groupTag) {
+        if (groupTag == null || groupTag.trim().isEmpty()) {
+            throw new BizException("分组名称不能为空");
+        }
+        return friendshipMapper.selectFriendsByGroup(userId, groupTag);
     }
 }

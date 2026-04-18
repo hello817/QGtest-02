@@ -4,6 +4,9 @@ import lombok.Data;
 
 @Data
 public class NoteCreateDTO {
-    @NotBlank private String content;
+    @NotBlank
+    private String title;
+    @NotBlank
+    private String content;
     private String tags;  // 逗号分隔
 }

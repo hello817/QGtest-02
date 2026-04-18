@@ -17,6 +17,7 @@ public class Friendship {
     private Long userId;
     private Long friendId;
     private FriendshipStatus status;
+    private String groupTag;
     private LocalDateTime creatTime;
 
     public Friendship(){};
@@ -24,5 +25,11 @@ public class Friendship {
         this.userId = userId;
         this.friendId = friendId;
         this.creatTime = LocalDateTime.now();
+    }
+    public Friendship(Long userId, Long friendId,String groupTag){
+        this.userId = userId;
+        this.friendId = friendId;
+        this.creatTime = LocalDateTime.now();
+        this.groupTag = groupTag !=null?groupTag:"默认";
     }
 }

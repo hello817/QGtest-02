@@ -1,10 +1,14 @@
 package com.qgtest.diary.controller;
 
+import com.qgtest.diary.common.BizException;
 import com.qgtest.diary.common.PageResult;
 import com.qgtest.diary.common.Result;
 import com.qgtest.diary.dto.noteDTO.*;
 import com.qgtest.diary.entity.Note;
 import com.qgtest.diary.entity.AiAnylize;
+import com.qgtest.diary.mapper.AiAnylizeMapper;
+import com.qgtest.diary.mapper.FriendshipMapper;
+import com.qgtest.diary.mapper.NoteMapper;
 import com.qgtest.diary.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +21,15 @@ import java.util.List;
 public class NoteController {
     @Autowired private NoteService noteService;
     @Autowired private AIService aiService;
+    @Autowired private NoteMapper noteMapper;
+    @Autowired private FriendshipMapper friendshipMapper;
+    @Autowired
+    private AiAnylizeMapper aiAnylizeMapper;
 
     @PostMapping
     public Result<Void> createNote(@RequestBody @Valid NoteCreateDTO dto,
                                    @RequestAttribute Long userId) {
-        noteService.addNote(userId, dto.getContent(), dto.getTags());
+        noteService.addNote(userId,dto.getTitle(), dto.getContent(), dto.getTags());
         return Result.success();
     }
 
@@ -52,8 +60,12 @@ public class NoteController {
                                    @RequestAttribute Long userId) {
         // 校验笔记归属
         noteService.checkOwnership(id, userId);
-        noteService.updateNoteContent(id, dto.getContent());
-        // 可选：更新标签
+        if (dto.getTitle() != null) {
+            noteService.updateTitle(id, dto.getTitle());
+        }
+        if (dto.getContent() != null) {
+            noteService.updateNoteContent(id, dto.getContent());
+        }
         if (dto.getTags() != null) {
             noteService.updateTags(id, dto.getTags());
         }
@@ -97,5 +109,29 @@ public class NoteController {
         String tags = aiService.generateTags(note.getContent());
         aiService.saveAnalysis(id, summary, keyPoints, tags);
         return Result.success(new AIAnalysisVO(summary, keyPoints, tags));
+    }
+    @GetMapping("/share/{noteId}")
+    public Result<NoteDetailVO> shareNote(@PathVariable Long noteId, @RequestAttribute(required = false) Long userId) {
+        Note note = noteMapper.selectById(noteId);
+        AiAnylize aiAnylize = aiAnylizeMapper.selectByNoteId(noteId);
+        NoteDetailVO VO = new NoteDetailVO(note,aiAnylize);
+        if (note == null) throw new BizException("笔记不存在");
+
+        Integer shareLevel = note.getVisibility().getCode();
+        if (shareLevel == 0) { // 仅自己
+            if (userId == null || !userId.equals(note.getUserId())) {
+                throw new BizException("无权限");
+            }
+        } else if (shareLevel == 3) { // 所有人可见
+            // 允许任何访问（包括未登录用户）
+            return Result.success(VO);
+        } else if (shareLevel == 2 || shareLevel ==1) { // 部分好友可见（需额外查好友关系）
+            if (userId == null) throw new BizException("请先登录");
+            // 检查是否为好友
+            if (friendshipMapper.isFriend(userId, note.getUserId()) == null) {
+                throw new BizException("仅好友可见");
+            }
+        }
+        return Result.success(VO);
     }
 }

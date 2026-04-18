@@ -42,7 +42,9 @@ CREATE TABLE IF NOT EXISTS friendship
     friend_id   BIGINT COMMENT '好友',
     state       TINYINT DEFAULT 0, -- 0待同意 1已同意 2已拒绝 3已删除
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '结交时间',
-    UNIQUE KEY (user_id,friend_id) --  同一对朋友关系只能出现一次
+    group_tag   VARCHAR(50) DEFAULT '默认' COMMENT '好友分组标签',
+    INDEX  idx_group_tag (user_id,group_tag),
+    UNIQUE KEY u_user_friend (user_id,friend_id) --  同一对朋友关系只能出现一次
 )COMMENT '关系表';
 
 -- AI分析存储表

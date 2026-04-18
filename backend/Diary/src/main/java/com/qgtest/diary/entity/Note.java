@@ -23,8 +23,9 @@ public class Note {
     private LocalDateTime updateTime;
 
     public Note(){};
-    public Note(Long userId, String content, String tags){
+    public Note(Long userId, String content,String title, String tags){
         this.userId = userId;
+        this.title = title;
         this.content = content;
         this.tags = tags;//要考虑一下怎么更新、添加tags
         this.createTime = LocalDateTime.now();

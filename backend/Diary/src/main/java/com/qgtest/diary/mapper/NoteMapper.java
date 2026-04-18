@@ -9,9 +9,9 @@ import java.util.List;
 @Mapper
 public interface NoteMapper extends BaseMapper {
     //这里先做一下基础的+更改可见性，逻辑删除（回收站），添加标签，查找好友笔记,有缺的想到再做吧
-    @Insert("insert into note(user_id,content,tags) values (#{userId},#{content},#{tags})")//突然发现笔记好像没做标题...?
+    @Insert("insert into note(user_id,title,content,tags) values (#{userId},#{title},#{content},#{tags})")//突然发现笔记好像没做标题...?
     int insert(Note note );
-    @Update("UPDATE note SET content = #{content},tags = #{tags},visibility = #{visibility},is_delete = #{isDelete} update_time = NOW() WHERE id = #{id}")
+    @Update("UPDATE note SET content = #{content},title = #{title},tags = #{tags},visibility = #{visibility},is_delete = #{isDelete},update_time = NOW() WHERE id = #{id}")
     int update(Note note);
     @Select("select * from note where id = #{id}")
     Note selectById(@Param("id") Long id);
@@ -23,7 +23,7 @@ public interface NoteMapper extends BaseMapper {
     @Select("select * from note where user_id = #{userId} order by create_time desc ")//或许应该换个排序方式
     List<Note> selectByUserId(@Param("userId") Long userId);
     //删除:回收站+永久删除
-    @Update("UPDATE note SET is_delete = #{code}")
+    @Update("UPDATE note SET is_delete = #{code} where id = #{id}")
     int trashById(@Param("id") Long id, @Param("code") Integer code);//这里用code可以直接一个接口两个用法，丢进回收站/从回收站放出
     @Delete("DELETE FROM note WHERE id = #{id}")
     int deleteById(@Param("id") Long id);

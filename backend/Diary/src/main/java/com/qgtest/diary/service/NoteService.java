@@ -47,8 +47,8 @@ public class NoteService {
         return noteMapper.selectAllVisibleNote();
     }
     @Transactional
-    public void addNote(Long userId, String content, String tags){
-        Note note = new Note(userId,content,tags);
+    public void addNote(Long userId,String title, String content, String tags){
+        Note note = new Note(userId,content,title,tags);
         noteMapper.insert(note);
     }
     //回收站
@@ -166,6 +166,16 @@ public class NoteService {
             throw new BizException("笔记不存在");
         }
         note.setTags(tags);
+        note.setUpdateTime(LocalDateTime.now());
+        noteMapper.update(note);
+    }
+    public void updateTitle(long noteId,String title){
+        Note note = noteMapper.selectById(noteId);
+        if (note == null) {
+            throw new BizException("笔记不存在");
+        }
+        note.setTitle(title);
+        note.setUpdateTime(LocalDateTime.now());
         noteMapper.update(note);
     }
 }
