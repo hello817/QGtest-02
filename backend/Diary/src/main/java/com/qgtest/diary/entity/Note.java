@@ -14,7 +14,7 @@ public class Note {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long userId;
-    public String title;
+    private String title;
     private String content;
     private String tags;
     private Visibility visibility;//这里可以考虑做枚举常量

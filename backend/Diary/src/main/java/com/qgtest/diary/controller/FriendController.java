@@ -46,11 +46,7 @@ public class FriendController {
     @PutMapping("/requests/{requestId}/accept")
     public Result<Void> acceptRequest(@PathVariable Long requestId,
                                       @RequestAttribute Long userId) {
-        Friendship fs = userService.getFriendshipById(requestId);
-        if (!fs.getFriendId().equals(userId)) {
-            throw new BizException("无权操作");
-        }
-        userService.resetFriendRequestState(fs.getUserId(), fs.getFriendId(), 1);
+        userService.acceptFriendRequest(requestId, userId);
         return Result.success();
     }
     //拒绝请求

@@ -209,15 +209,15 @@ const historyList = ref([])
 const loadingHistory = ref(false)
 
 const visibilityOptions = [
-  { value: 'PRIVATE', label: '仅自己可见', desc: '默认状态，只有自己可以查看和编辑' },
-  { value: 'PARTIAL_VIEW', label: '部分好友可见', desc: '选中的好友可以查看，但不能编辑' },
-  { value: 'PARTIAL_EDIT', label: '部分好友可编辑', desc: '选中的好友可以查看和编辑' },
-  { value: 'PUBLIC', label: '所有人可见', desc: '所有人（包括非好友）可以查看，但不能编辑' }
+  { value: 0, label: '仅自己可见', desc: '默认状态，只有自己可以查看和编辑' },
+  { value: 1, label: '部分好友可见', desc: '选中的好友可以查看，但不能编辑' },
+  { value: 2, label: '部分好友可编辑', desc: '选中的好友可以查看和编辑' },
+  { value: 3, label: '所有人可见', desc: '所有人（包括非好友）可以查看，但不能编辑' }
 ]
 
 const getVisibilityText = (visibility) => {
-  const map = { 'PRIVATE': '私有', 'PARTIAL_VIEW': '部分可见', 'PARTIAL_EDIT': '部分可编辑', 'PUBLIC': '公开' }
-  return map[visibility] || '私有'
+  const map = { 0: '私有', 1: '部分可见', 2: '部分可编辑', 3: '公开' }
+  return map[visibility] ?? '私有'
 }
 
 const fetchNotes = async () => {
@@ -352,7 +352,7 @@ const deleteNote = async (id) => {
 const openShareModal = async (note) => {
   sharingNote.value = note
   shareForm.value = {
-    visibility: note.visibility || 'PRIVATE',
+    visibility: note.visibility ?? 0,
     friendIds: note.sharedFriendIds || []
   }
   activeMenu.value = null
@@ -374,10 +374,7 @@ const saveShare = async () => {
   
   sharing.value = true
   try {
-    const res = await noteApi.update(sharingNote.value.id, {
-      visibility: shareForm.value.visibility,
-      sharedFriendIds: shareForm.value.friendIds
-    })
+    const res = await noteApi.setVisibility(sharingNote.value.id, shareForm.value.visibility)
     if (res.code === 200) {
       alert('分享设置已保存')
       showShareModal.value = false

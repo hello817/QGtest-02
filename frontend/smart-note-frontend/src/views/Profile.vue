@@ -318,8 +318,8 @@ const searchUser = async () => {
   }
   try {
     const res = await friendApi.searchUser(searchKeyword.value.trim())
-    if (res.code === 200 && res.data) {
-      searchResult.value = res.data
+    if (res.code === 200 && res.data && res.data.length > 0) {
+      searchResult.value = res.data[0]
     } else {
       alert(res.msg || '未找到用户')
       searchResult.value = null
@@ -332,7 +332,7 @@ const searchUser = async () => {
 
 const sendFriendRequest = async (userId) => {
   try {
-    const res = await friendApi.sendRequest({ userId })
+    const res = await friendApi.sendRequest(userId)
     if (res.code === 200) {
       alert('好友请求已发送')
       searchResult.value = null
@@ -348,7 +348,9 @@ const sendFriendRequest = async (userId) => {
 
 const handleFriendRequest = async (requestId, action) => {
   try {
-    const res = await friendApi.handleRequest(requestId, action)
+    const res = action === 'accept' 
+      ? await friendApi.acceptRequest(requestId)
+      : await friendApi.rejectRequest(requestId)
     if (res.code === 200) {
       alert(action === 'accept' ? '已同意好友请求' : '已拒绝好友请求')
       loadFriendRequests()

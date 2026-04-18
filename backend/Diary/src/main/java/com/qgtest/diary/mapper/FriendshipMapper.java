@@ -1,5 +1,6 @@
 package com.qgtest.diary.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.qgtest.diary.entity.Friendship;
 import com.qgtest.diary.entity.User;
 import org.apache.ibatis.annotations.*;
@@ -7,10 +8,7 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface FriendshipMapper {
-    //这里要做申请好友，同意/拒绝申请，删除好友,如果加的是之前拒绝过的直接在业务层判断然后执行更新方法
-    @Insert("insert into friendship(user_id,friend_id,state,group_tag) values (#{userId},#{friendId},#{status.coode()},#{groupTag})")
-    int insert(Friendship friendship);
+public interface FriendshipMapper extends BaseMapper<Friendship> {
 
     @Select("select * from friendship where id = #{id}")
     Friendship selectById(Long id);
@@ -31,8 +29,8 @@ public interface FriendshipMapper {
     @Select("select * from friendship where (user_id = #{userId} or friend_id = #{userId}) and state = #{state}")
     List<Friendship> selectAllRequests(@Param("userId") Long userId, @Param("state") Integer state);
 
-    //查找关系，用于判断好友状态
-    @Select("select * from friendship where (user_id = #{userId} and friend_id = #{friendId}) or (user_id = #{friendId} and friend_id = #{userId})")
+    //查找关系，用于判断好友状态（双向查询，使用 LIMIT 1 避免返回多条记录）
+    @Select("select * from friendship where (user_id = #{userId} and friend_id = #{friendId}) or (user_id = #{friendId} and friend_id = #{userId}) LIMIT 1")
     Friendship isFriend(@Param("userId") Long userId, @Param("friendId") Long friendId);
 
     //同意申请/拒绝申请、删除好友

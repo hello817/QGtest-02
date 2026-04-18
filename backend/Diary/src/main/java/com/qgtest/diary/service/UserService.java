@@ -220,6 +220,29 @@ public class UserService {
     public void resetFriendRequestState(Long userId, Long friendId, Integer state){
         friendshipMapper.update(userId,friendId,state);
     }
+    //同意好友请求（创建双向关系）
+    @Transactional
+    public void acceptFriendRequest(Long requestId, Long currentUserId){
+        Friendship fs = friendshipMapper.selectById(requestId);
+        if (fs == null) {
+            throw new BizException("好友请求不存在");
+        }
+        if (!fs.getFriendId().equals(currentUserId)) {
+            throw new BizException("无权操作");
+        }
+        // 更新原请求状态为已同意
+        friendshipMapper.update(fs.getUserId(), fs.getFriendId(), 1);
+        // 创建反向好友关系（如果不存在）
+        Friendship reverse = friendshipMapper.selectByFriendId(fs.getFriendId(), fs.getUserId());
+        if (reverse == null) {
+            Friendship newFriendship = new Friendship(fs.getFriendId(), fs.getUserId(), "默认");
+            newFriendship.setStatus(FriendshipStatus.ACCEPTED);
+            friendshipMapper.insert(newFriendship);
+        } else {
+            // 如果反向关系已存在，更新状态
+            friendshipMapper.update(fs.getFriendId(), fs.getUserId(), 1);
+        }
+    }
     @Transactional
     public void sendFriendRequest(Long userId, Long friendId ,String groupTag){
         // 不能添加自己为好友
@@ -240,14 +263,23 @@ public class UserService {
         if(existingRelation1 != null || existingRelation2 != null){
             Friendship existing = existingRelation1 != null ? existingRelation1 : existingRelation2;
 
+            // 防止 status 为 null，重新从数据库查询最新数据
+            if (existing.getStatus() == null) {
+                existing = friendshipMapper.selectById(existing.getId());
+                if (existing == null || existing.getStatus() == null) {
+                    throw new BizException("好友关系数据异常，请联系管理员");
+                }
+            }
+
             // 根据状态给出不同提示
-            if(existing.getStatus().getCode() == 1){
+            int statusCode = existing.getStatus().getCode();
+            if(statusCode == 1){
                 throw new BizException("你们已经是好友了");
-            }else if(existing.getStatus().getCode() == 0){
+            }else if(statusCode == 0){
                 throw new BizException("好友申请已发送，等待对方同意");
-            }else if(existing.getStatus().getCode() == 2||existing.getStatus().getCode() == 3){
-                existing.setStatus(FriendshipStatus.formCode(0));
-                friendshipMapper.update(existing.getUserId(),existing.getFriendId(),existing.getStatus().getCode());
+            }else if(statusCode == 2||statusCode == 3){
+                // 使用 existing 对象的 userId 和 friendId，确保更新正确的记录
+                friendshipMapper.update(existing.getUserId(), existing.getFriendId(), 0);
             }
         }else{
             Friendship friendship = new Friendship(userId,friendId,groupTag);
@@ -266,12 +298,6 @@ public class UserService {
         if (groupTag == null || groupTag.trim().isEmpty()) {
             throw new BizException("分组名称不能为空");
         }
-
-        Friendship friendship = friendshipMapper.isFriend(userId, friendId);
-        if (friendship == null || friendship.getStatus().getCode() != 1) {
-            throw new BizException("不是好友关系");
-        }
-
         int result = friendshipMapper.updateFriendGroup(userId, friendId, groupTag);
         if (result == 0) {
             throw new BizException("修改分组失败");

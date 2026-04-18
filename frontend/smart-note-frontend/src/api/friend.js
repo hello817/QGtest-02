@@ -9,20 +9,24 @@ export const friendApi = {
     return request.get('/friends/requests')
   },
 
-  sendRequest(data) {
-    return request.put('/friends/request', data)
+  sendRequest(friendId, groupTag = '默认') {
+    return request.post(`/friends/requests/${friendId}`, null, { params: { groupTag } })
   },
 
-  handleRequest(id, action) {
-    return request.put(`/friends/request/${id}`, { action })
+  acceptRequest(requestId) {
+    return request.put(`/friends/requests/${requestId}/accept`)
+  },
+
+  rejectRequest(requestId) {
+    return request.put(`/friends/requests/${requestId}/reject`)
   },
 
   delete(id) {
     return request.delete(`/friends/${id}`)
   },
 
-  updateGroup(id, group) {
-    return request.put(`/friends/${id}/group`, { group })
+  updateGroup(id, groupTag) {
+    return request.put(`/friends/${id}/group`, { groupTag })
   },
 
   searchUser(keyword) {

@@ -16,7 +16,7 @@ public interface NoteMapper extends BaseMapper<Note> {
     @Select("select * from note where id = #{id}")
     Note selectById(@Param("id") Long id);
     //tag做模糊搜索
-    @Select("select * from note where user_id = #{userId} and tags like %#{tags}%")
+    @Select("select * from note where user_id = #{userId} and tags like concat('%', #{tags}, '%')")
     Note selectByTags(@Param("userId") Long userId, @Param("tags") String tags);
     @Select("select * from note where visibility = 1")
     List<Note> selectAllVisibleNote();//查找所有可见（所有用户共享的）笔记，最好是只读或者类似fork笔记到自己的知识库，或者这部分也可以不做？

@@ -20,8 +20,8 @@ public interface AiAnylizeMapper extends BaseMapper<AiAnylize> {
     AiAnylize selectByNoteId(@Param("noteId") Long noteId);
 
     //更新AI分析结果（如果存在则更新，不存在则插入）
-    @Update("UPDATE ai_anylize SET summary = #{summary}, key_point = #{key_point}, " +
-            "tags_sgt = #{tags_sgt}, update_time = NOW() WHERE note_id = #{note_id}")
+    @Update("UPDATE ai_anylize SET summary = #{summary}, key_point = #{keyPoint}, " +
+            "tags_sgt = #{tags}, update_time = NOW() WHERE note_id = #{noteId}")
     int updateByNoteId(AiAnylize aiAnylize);
 
     //删除指定笔记的AI分析

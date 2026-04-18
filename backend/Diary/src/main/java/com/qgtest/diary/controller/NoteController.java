@@ -4,6 +4,7 @@ import com.qgtest.diary.common.BizException;
 import com.qgtest.diary.common.PageResult;
 import com.qgtest.diary.common.Result;
 import com.qgtest.diary.dto.noteDTO.*;
+import com.qgtest.diary.entity.Friendship;
 import com.qgtest.diary.entity.Note;
 import com.qgtest.diary.entity.AiAnylize;
 import com.qgtest.diary.mapper.AiAnylizeMapper;
@@ -113,25 +114,31 @@ public class NoteController {
     @GetMapping("/share/{noteId}")
     public Result<NoteDetailVO> shareNote(@PathVariable Long noteId, @RequestAttribute(required = false) Long userId) {
         Note note = noteMapper.selectById(noteId);
-        AiAnylize aiAnylize = aiAnylizeMapper.selectByNoteId(noteId);
-        NoteDetailVO VO = new NoteDetailVO(note,aiAnylize);
-        if (note == null) throw new BizException("笔记不存在");
+        if (note == null) {
+            throw new BizException("笔记不存在");
+        }
 
         Integer shareLevel = note.getVisibility().getCode();
-        if (shareLevel == 0) { // 仅自己
+        if (shareLevel == 0) {
             if (userId == null || !userId.equals(note.getUserId())) {
-                throw new BizException("无权限");
+                throw new BizException("无权限访问");
             }
-        } else if (shareLevel == 3) { // 所有人可见
-            // 允许任何访问（包括未登录用户）
-            return Result.success(VO);
-        } else if (shareLevel == 2 || shareLevel ==1) { // 部分好友可见（需额外查好友关系）
-            if (userId == null) throw new BizException("请先登录");
-            // 检查是否为好友
-            if (friendshipMapper.isFriend(userId, note.getUserId()) == null) {
-                throw new BizException("仅好友可见");
+        } else if (shareLevel == 3) {
+            // 所有人可见，允许访问
+        } else if (shareLevel == 1 || shareLevel == 2) {
+            if (userId == null) {
+                throw new BizException("请先登录");
+            }
+            if (!note.getUserId().equals(userId)) {
+                Friendship friendship = friendshipMapper.isFriend(userId, note.getUserId());
+                if (friendship == null || friendship.getStatus().getCode() != 1) {
+                    throw new BizException("仅好友可见");
+                }
             }
         }
-        return Result.success(VO);
+
+        AiAnylize aiAnylize = aiAnylizeMapper.selectByNoteId(noteId);
+        NoteDetailVO vo = new NoteDetailVO(note, aiAnylize);
+        return Result.success(vo);
     }
 }

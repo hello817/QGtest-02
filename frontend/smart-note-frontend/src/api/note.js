@@ -21,6 +21,14 @@ export const noteApi = {
     return request.delete(`/notes/${id}`)
   },
 
+  trash(id) {
+    return request.put(`/notes/${id}/trash`)
+  },
+
+  setVisibility(id, visibility) {
+    return request.put(`/notes/${id}/visibility`, null, { params: { shareLevel: visibility } })
+  },
+
   analyze(id) {
     return request.post(`/notes/${id}/analyze`)
   },
@@ -29,15 +37,7 @@ export const noteApi = {
     return request.get('/notes/history')
   },
 
-  getShared(shareId) {
-    return request.get(`/share/${shareId}`)
-  },
-
-  getShareInfo(noteId) {
-    return request.get(`/share/note/${noteId}`)
-  },
-
-  createShare(data) {
-    return request.post('/share', data)
+  getShared(noteId) {
+    return request.get(`/notes/share/${noteId}`)
   }
 }

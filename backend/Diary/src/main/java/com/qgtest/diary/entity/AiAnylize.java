@@ -1,11 +1,11 @@
 package com.qgtest.diary.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.lang.ref.SoftReference;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,7 +15,9 @@ public class AiAnylize {
     private Long id;
     private Long noteId;
     private String summary;
+    @TableField("tags_sgt")
     private String tags;
+    @TableField("key_point")
     private String keyPoint;
     private LocalDateTime createTime;
 
