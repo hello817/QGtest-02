@@ -100,7 +100,7 @@
               <img :src="friend.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + friend.account" class="w-10 h-10 rounded-full" />
               <div>
                 <p class="text-sm font-medium text-gray-800">{{ friend.username || friend.account }}</p>
-                <span class="text-[10px] px-2 py-0.5 bg-gray-200 text-gray-600 rounded-md">{{ friend.groupName || '默认分组' }}</span>
+                <span class="text-[10px] px-2 py-0.5 bg-gray-200 text-gray-600 rounded-md">{{ friend.groupTag || '默认分组' }}</span>
               </div>
             </div>
             <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -382,7 +382,7 @@ const deleteFriend = async (friendId) => {
 
 const showGroupModal = (friend) => {
   selectedFriend.value = friend
-  selectedGroup.value = friend.groupName || '默认'
+  selectedGroup.value = friend.groupTag || '默认'
   customGroup.value = ''
   showGroupDialog.value = true
 }

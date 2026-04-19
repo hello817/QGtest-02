@@ -62,7 +62,7 @@ public class FriendController {
     }
     //好友列表/按分组查询好友列表
     @GetMapping
-    public Result<List<User>> listFriends(@RequestAttribute Long userId,
+    public Result<List<FriendVO>> listFriends(@RequestAttribute Long userId,
                                           @RequestParam(required = false) String group) {
         if (group != null && !group.isEmpty()) {
             return Result.success(userService.getFriendsByGroup(userId, group));

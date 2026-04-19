@@ -3,6 +3,7 @@ package com.qgtest.diary.service;
 import com.qgtest.diary.common.BizException;
 import com.qgtest.diary.common.Result;
 import com.qgtest.diary.common.enums.FriendshipStatus;
+import com.qgtest.diary.dto.friendDTO.FriendVO;
 import com.qgtest.diary.entity.AiAnylize;
 import com.qgtest.diary.entity.Friendship;
 import com.qgtest.diary.entity.Note;
@@ -192,7 +193,7 @@ public class UserService {
     //好友部分(这里因为和user强关联所以不动了)---------------------------------------------------------------
     //查询所有好友，搜索好友（邮箱/手机号）模糊搜索，查询是否有好友请求,添加好友，同意/拒绝,删除好友
     @Transactional
-    public List<User> findAllFriends(Long userId){
+    public List<FriendVO> findAllFriends(Long userId){
         return friendshipMapper.selectAllFriends(userId);
     }
     //查询用户，后面controller别忘了用mapper里查关系的方法给已经是好友的用户加个标识
@@ -318,7 +319,7 @@ public class UserService {
     /**
      * 查询指定分组的好友
      */
-    public List<User> getFriendsByGroup(Long userId, String groupTag) {
+    public List<FriendVO> getFriendsByGroup(Long userId, String groupTag) {
         if (groupTag == null || groupTag.trim().isEmpty()) {
             throw new BizException("分组名称不能为空");
         }

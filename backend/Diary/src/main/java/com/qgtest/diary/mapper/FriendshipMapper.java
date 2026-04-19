@@ -1,6 +1,7 @@
 package com.qgtest.diary.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.qgtest.diary.dto.friendDTO.FriendVO;
 import com.qgtest.diary.entity.Friendship;
 import com.qgtest.diary.entity.User;
 import org.apache.ibatis.annotations.*;
@@ -13,15 +14,14 @@ public interface FriendshipMapper extends BaseMapper<Friendship> {
     @Select("select * from friendship where id = #{id}")
     Friendship selectById(Long id);
      //用JOIN来获取全部好友
-    @Select("select u.* from user u INNER JOIN friendship f ON u.id = f.friend_id where f.user_id = #{userId} and f.state = 1")
-    List<User> selectAllFriends(@Param("userId") Long userId);
+    @Select("select u.* ,f.group_tag from user u INNER JOIN friendship f ON u.id = f.friend_id where f.user_id = #{userId} and f.state = 1")
+    List<FriendVO> selectAllFriends(@Param("userId") Long userId);
     //按分组搜索好友
     @Select("SELECT u.*, f.group_tag FROM user u INNER JOIN friendship f ON u.id = f.friend_id WHERE f.user_id = #{userId} AND f.state = 1 AND f.group_tag = #{groupTag}")
-    List<User> selectFriendsByGroup(@Param("userId") Long userId, @Param("groupTag") String groupTag);
+    List<FriendVO> selectFriendsByGroup(@Param("userId") Long userId, @Param("groupTag") String groupTag);
     //搜索好友分组
     @Select("SELECT DISTINCT group_tag FROM friendship WHERE user_id = #{userId} AND state = 1")
     List<String> selectUserGroups(@Param("userId") Long userId);
-
     //用朋友id搜索
     @Select("select * from friendship where (user_id = #{userId} and friend_id = #{friendId})")
     Friendship selectByFriendId(@Param("userId") Long userId,@Param("friendId") Long friendId);

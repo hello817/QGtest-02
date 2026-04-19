@@ -63,7 +63,7 @@
                   <Tags class="w-4 h-4 text-orange-500" /> AI 标签建议
                 </h3>
                 <div class="flex flex-wrap gap-2">
-                  <span v-if="note?.suggestedTags" v-for="tag in note.suggestedTags.split(',')" :key="tag" class="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">{{ tag.trim() }}</span>
+                  <span v-if="note?.tagsSuggestion" v-for="tag in note.tagsSuggestion.split(',')" :key="tag" class="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">{{ tag.trim() }}</span>
                   <span v-else class="text-sm text-gray-500">暂无标签建议</span>
                 </div>
               </div>
@@ -296,7 +296,7 @@ const analyzeNote = async () => {
     if (res.code === 200 && res.data) {
       note.value.summary = res.data.summary
       note.value.keyPoints = res.data.keyPoints
-      note.value.suggestedTags = res.data.suggestedTags
+      note.value.tagsSuggestion = res.data.tags
       alert('AI分析完成')
     } else {
       alert(res.msg || '分析失败')
