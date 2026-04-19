@@ -211,7 +211,16 @@ const shareUrl = computed(() => {
 })
 
 const getVisibilityText = (visibility) => {
-  const map = { 0: '私有', 1: '部分可见', 2: '部分可编辑', 3: '公开' }
+  const map = { 
+    'PRIVATE': '私有', 
+    'FRIEND_READ': '部分可见', 
+    'FRIEND_WRITE': '部分可编辑', 
+    'PUBLIC': '公开',
+    0: '私有', 
+    1: '部分可见', 
+    2: '部分可编辑', 
+    3: '公开'
+  }
   return map[visibility] ?? '私有'
 }
 
@@ -310,8 +319,12 @@ const analyzeNote = async () => {
 }
 
 const openShareModal = async () => {
+  const visibilityMap = { 'PRIVATE': 0, 'FRIEND_READ': 1, 'FRIEND_WRITE': 2, 'PUBLIC': 3 }
+  const visibilityValue = typeof note.value?.visibility === 'string' 
+    ? (visibilityMap[note.value.visibility] ?? 0) 
+    : (note.value?.visibility ?? 0)
   shareForm.value = {
-    visibility: note.value?.visibility ?? 0,
+    visibility: visibilityValue,
     friendIds: note.value?.sharedFriendIds || []
   }
   
