@@ -33,6 +33,13 @@ public class NoteController {
         noteService.addNote(userId,dto.getTitle(), dto.getContent(), dto.getTags());
         return Result.success();
     }
+    //查看分享的笔记
+    @GetMapping("/shared")
+    public Result<List<SharedNoteDTO>> getSharedNotes(
+            @RequestAttribute Long userId,
+            @RequestParam(required = false) String type) {
+        return Result.success(noteService.getSharedNotes(userId, type));
+    }
 
     @GetMapping
     public Result<PageResult<Note>> listNotes(

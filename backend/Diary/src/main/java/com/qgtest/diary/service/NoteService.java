@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.qgtest.diary.common.BizException;
 import com.qgtest.diary.common.PageResult;
 import com.qgtest.diary.common.enums.Visibility;
+import com.qgtest.diary.dto.noteDTO.SharedNoteDTO;
 import com.qgtest.diary.entity.Note;
 import com.qgtest.diary.entity.NoteHistory;
 import com.qgtest.diary.mapper.AiAnylizeMapper;
@@ -177,5 +178,15 @@ public class NoteService {
         note.setTitle(title);
         note.setUpdateTime(LocalDateTime.now());
         noteMapper.update(note);
+    }
+
+    public List<SharedNoteDTO> getSharedNotes(Long userId, String type) {
+        if (type != null && !type.isEmpty()) {
+            if (!"shared".equals(type) && !"public".equals(type)) {
+                throw new BizException("无效的type参数，应为shared或public");
+            }
+            return noteMapper.selectSharedNotes(userId, type);
+        }
+        return noteMapper.selectAllSharedNotes(userId);
     }
 }

@@ -207,7 +207,7 @@ const visibilityOptions = [
 
 const shareUrl = computed(() => {
   if (!note.value) return ''
-  return `${window.location.origin}/note/${note.value.id}`
+  return `${window.location.origin}/shared/${note.value.id}`
 })
 
 const getVisibilityText = (visibility) => {

@@ -39,5 +39,9 @@ export const noteApi = {
 
   getShared(noteId) {
     return request.get(`/notes/share/${noteId}`)
+  },
+
+  getSharedNotes(type) {
+    return request.get('/notes/shared', { params: { type } })
   }
 }

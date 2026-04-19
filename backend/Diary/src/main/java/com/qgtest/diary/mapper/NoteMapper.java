@@ -1,6 +1,7 @@
 package com.qgtest.diary.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.qgtest.diary.dto.noteDTO.SharedNoteDTO;
 import com.qgtest.diary.entity.Note;
 import org.apache.ibatis.annotations.*;
 
@@ -27,6 +28,72 @@ public interface NoteMapper extends BaseMapper<Note> {
     int trashById(@Param("id") Long id, @Param("code") Integer code);//这里用code可以直接一个接口两个用法，丢进回收站/从回收站放出
     @Delete("DELETE FROM note WHERE id = #{id}")
     int deleteById(@Param("id") Long id);
+    //查询分享的或公开的笔记
+    @Select("<script>" +
+            "SELECT n.id, n.title, n.content, n.tags, " +
+            "CASE n.visibility " +
+            "  WHEN 0 THEN 'PRIVATE' " +
+            "  WHEN 1 THEN 'FRIEND_READ' " +
+            "  WHEN 2 THEN 'FRIEND_WRITE' " +
+            "  WHEN 3 THEN 'PUBLIC' " +
+            "END as visibility, " +
+            "n.user_id as author_id, " +
+            "u.username as author_name, " +
+            "u.account as author_account, " +
+            "u.avatar as author_avatar, " +
+            "n.update_time as update_time " +
+            "FROM note n " +
+            "INNER JOIN user u ON n.user_id = u.id " +
+            "WHERE n.is_delete = 0 " +
+            "<if test='type == \"shared\"'>" +
+            "AND (" +
+            "  (n.visibility = 1 OR n.visibility = 2) " +
+            "  AND n.user_id IN (" +
+            "    SELECT f.friend_id FROM friendship f " +
+            "    WHERE f.user_id = #{userId} AND f.state = 1" +
+            "    UNION " +
+            "    SELECT f.user_id FROM friendship f " +
+            "    WHERE f.friend_id = #{userId} AND f.state = 1" +
+            "  )" +
+            ")" +
+            "</if>" +
+            "<if test='type == \"public\"'>" +
+            "AND n.visibility = 3" +
+            "</if>" +
+            "ORDER BY n.update_time DESC" +
+            "</script>")
+    List<SharedNoteDTO> selectSharedNotes(@Param("userId") Long userId, @Param("type") String type);
+    //查询所有可见的笔记
+    @Select("<script>" +
+            "SELECT n.id, n.title, n.content, n.tags, " +
+            "CASE n.visibility " +
+            "  WHEN 0 THEN 'PRIVATE' " +
+            "  WHEN 1 THEN 'FRIEND_READ' " +
+            "  WHEN 2 THEN 'FRIEND_WRITE' " +
+            "  WHEN 3 THEN 'PUBLIC' " +
+            "END as visibility, " +
+            "n.user_id as author_id, " +
+            "u.username as author_name, " +
+            "u.account as author_account, " +
+            "u.avatar as author_avatar, " +
+            "n.update_time as update_time " +
+            "FROM note n " +
+            "INNER JOIN user u ON n.user_id = u.id " +
+            "WHERE n.is_delete = 0 " +
+            "AND (" +
+            "  (n.visibility = 3) " +
+            "  OR " +
+            "  ((n.visibility = 1 OR n.visibility = 2) AND n.user_id IN (" +
+            "    SELECT f.friend_id FROM friendship f " +
+            "    WHERE f.user_id = #{userId} AND f.state = 1" +
+            "    UNION " +
+            "    SELECT f.user_id FROM friendship f " +
+            "    WHERE f.friend_id = #{userId} AND f.state = 1" +
+            "  ))" +
+            ")" +
+            "ORDER BY n.update_time DESC" +
+            "</script>")
+    List<SharedNoteDTO> selectAllSharedNotes(@Param("userId") Long userId);
 
     //分页查询
     @Select("<script>" +

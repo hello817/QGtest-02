@@ -7,6 +7,9 @@
           <p class="text-sm text-gray-500 mt-2">管理你的所有笔记，支持搜索、标签筛选和分页</p>
         </div>
         <div class="flex gap-3">
+          <button @click="router.push('/shared')" class="inline-flex items-center justify-center rounded-full bg-green-50 px-5 py-3 text-green-700 transition hover:bg-green-100">
+            <Share2 class="w-4 h-4 mr-2" /> 分享给我
+          </button>
           <button @click="showHistoryModal = true" class="inline-flex items-center justify-center rounded-full bg-gray-100 px-5 py-3 text-gray-700 transition hover:bg-gray-200">
             <History class="w-4 h-4 mr-2" /> 历史记录
           </button>
