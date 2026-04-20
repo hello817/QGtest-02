@@ -108,5 +108,16 @@ public interface NoteMapper extends BaseMapper<Note> {
                             @Param("tag") String tag,
                             @Param("offset") int offset,
                             @Param("pageSize") int pageSize);
+    //获取回收站
+    @Select("select * from note where user_id = #{userId} and is_delete = 1")
+    List<Note> getTrashedNotes(@Param("userId") Long userId);
+
+    @Delete("<script>" +
+            "DELETE FROM note WHERE id IN " +
+            "<foreach collection='noteIds' item='noteId' open='(' separator=',' close=')'>" +
+            "#{noteId}" +
+            "</foreach>" +
+            "</script>")
+    int deleteBatchByIds(@Param("noteIds") List<Long> noteIds);
 }
 

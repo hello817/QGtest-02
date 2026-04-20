@@ -16,7 +16,7 @@ public interface AiAnylizeMapper extends BaseMapper<AiAnylize> {
     int insert(AiAnylize aiAnylize);
 
     //根据笔记ID查询AI分析结果
-    @Select("SELECT * FROM ai_anylize WHERE note_id = #{noteId}")
+    @Select("SELECT id, note_id, summary, key_point, tags_sgt AS tags, create_time, update_time FROM ai_anylize WHERE note_id = #{noteId}")
     AiAnylize selectByNoteId(@Param("noteId") Long noteId);
 
     //更新AI分析结果（如果存在则更新，不存在则插入）

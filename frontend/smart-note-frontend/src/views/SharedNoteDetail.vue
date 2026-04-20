@@ -36,7 +36,7 @@
           </div>
 
           <div class="prose prose-sm max-w-none">
-            <p class="text-gray-700 whitespace-pre-wrap">{{ note.content }}</p>
+            <div v-html="renderMarkdown(note.content)"></div>
           </div>
 
           <div v-if="note.tags" class="mt-4 pt-4 border-t border-gray-100">
@@ -73,6 +73,10 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ArrowLeft, AlertCircle, Tag, Sparkles } from 'lucide-vue-next'
 import { noteApi } from '../api'
+import MarkdownIt from 'markdown-it'
+
+const md = new MarkdownIt()
+const renderMarkdown = (text) => md.render(text)
 
 const route = useRoute()
 const note = ref(null)

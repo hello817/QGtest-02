@@ -59,7 +59,7 @@ public class NoteService {
     }
     //取出
     @Transactional
-    public void cancelTrashNote(Long noteId){
+    public void cancelTrashNote(Long userId,Long noteId){
         noteMapper.trashById(noteId,0);
     }
     @Transactional
@@ -188,5 +188,25 @@ public class NoteService {
             return noteMapper.selectSharedNotes(userId, type);
         }
         return noteMapper.selectAllSharedNotes(userId);
+    }
+    
+    public List<Note> getTrashNotes(Long userId){
+        return noteMapper.getTrashedNotes(userId);
+    }
+
+    @Transactional
+    public void emptyTrash(Long userId) {
+        List<Note> trashNotes = noteMapper.getTrashedNotes(userId);
+        if (trashNotes.isEmpty()) {
+            return;
+        }
+
+        List<Long> noteIds = trashNotes.stream()
+                .map(Note::getId)
+                .collect(Collectors.toList());
+
+        aiAnylizeMapper.deleteBatchByNoteIds(noteIds);
+
+        noteMapper.deleteBatchByIds(noteIds);
     }
 }

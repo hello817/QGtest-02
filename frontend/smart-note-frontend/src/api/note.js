@@ -43,5 +43,17 @@ export const noteApi = {
 
   getSharedNotes(type) {
     return request.get('/notes/shared', { params: { type } })
+  },
+
+  getTrash() {
+    return request.get('/notes/trash')
+  },
+
+  restore(id) {
+    return request.put(`/notes/${id}/restore`)
+  },
+
+  emptyTrash() {
+    return request.delete('/notes/trash')
   }
 }

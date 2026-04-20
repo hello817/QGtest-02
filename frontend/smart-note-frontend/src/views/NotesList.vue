@@ -10,6 +10,9 @@
           <button @click="router.push('/shared')" class="inline-flex items-center justify-center rounded-full bg-green-50 px-5 py-3 text-green-700 transition hover:bg-green-100">
             <Share2 class="w-4 h-4 mr-2" /> 分享给我
           </button>
+          <button @click="router.push('/trash')" class="inline-flex items-center justify-center rounded-full bg-gray-100 px-5 py-3 text-gray-700 transition hover:bg-gray-200">
+            <Trash2 class="w-4 h-4 mr-2" /> 回收站
+          </button>
           <button @click="showHistoryModal = true" class="inline-flex items-center justify-center rounded-full bg-gray-100 px-5 py-3 text-gray-700 transition hover:bg-gray-200">
             <History class="w-4 h-4 mr-2" /> 历史记录
           </button>
@@ -343,12 +346,12 @@ const saveNote = async () => {
 }
 
 const deleteNote = async (id) => {
-  if (!confirm('确定要删除这篇笔记吗？')) return
+  if (!confirm('确定要删除这篇笔记吗？删除后可在回收站恢复')) return
   
   try {
-    const res = await noteApi.delete(id)
+    const res = await noteApi.trash(id)
     if (res.code === 200) {
-      alert('笔记已删除')
+      alert('笔记已移入回收站')
       fetchNotes()
     } else {
       alert(res.msg || '删除失败')

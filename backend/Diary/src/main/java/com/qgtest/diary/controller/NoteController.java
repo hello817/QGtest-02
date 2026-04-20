@@ -26,14 +26,14 @@ public class NoteController {
     @Autowired private FriendshipMapper friendshipMapper;
     @Autowired
     private AiAnylizeMapper aiAnylizeMapper;
-
+    //
     @PostMapping
     public Result<Void> createNote(@RequestBody @Valid NoteCreateDTO dto,
                                    @RequestAttribute Long userId) {
         noteService.addNote(userId,dto.getTitle(), dto.getContent(), dto.getTags());
         return Result.success();
     }
-    //查看分享的笔记
+    //查看分享的是哪些笔记
     @GetMapping("/shared")
     public Result<List<SharedNoteDTO>> getSharedNotes(
             @RequestAttribute Long userId,
@@ -101,7 +101,7 @@ public class NoteController {
         noteService.deleteNote(id);
         return Result.success();
     }
-
+    //查看历史
     @GetMapping("/history")
     public Result<List<Note>> getHistory(@RequestAttribute Long userId,
                                          @RequestParam(defaultValue = "10") int limit) {
@@ -118,6 +118,7 @@ public class NoteController {
         aiService.saveAnalysis(id, summary, keyPoints, tags);
         return Result.success(new AIAnalysisVO(summary, keyPoints, tags));
     }
+    //查看分享的详细笔记内容
     @GetMapping("/share/{noteId}")
     public Result<NoteDetailVO> shareNote(@PathVariable Long noteId, @RequestAttribute(required = false) Long userId) {
         Note note = noteMapper.selectById(noteId);
@@ -147,5 +148,25 @@ public class NoteController {
         AiAnylize aiAnylize = aiAnylizeMapper.selectByNoteId(noteId);
         NoteDetailVO vo = new NoteDetailVO(note, aiAnylize);
         return Result.success(vo);
+    }
+    //回收站
+    // 获取回收站列表
+    @GetMapping("/trash")
+    public Result<List<Note>> getTrashNotes(@RequestAttribute Long userId) {
+        return Result.success(noteService.getTrashNotes(userId));
+    }
+
+    // 恢复笔记
+    @PutMapping("/{id}/restore")
+    public Result<Void> restoreNote(@PathVariable Long id, @RequestAttribute Long userId) {
+        noteService.cancelTrashNote(userId,id);
+        return Result.success();
+    }
+
+    // 清空回收站
+    @DeleteMapping("/trash")
+    public Result<Void> emptyTrash(@RequestAttribute Long userId) {
+        noteService.emptyTrash(userId);
+        return Result.success();
     }
 }

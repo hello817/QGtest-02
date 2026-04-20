@@ -38,7 +38,7 @@
         <template v-else>
           <div v-if="!isEditing" class="space-y-8">
             <section class="prose max-w-none text-gray-700 leading-relaxed">
-              <p v-if="note?.content" class="whitespace-pre-wrap">{{ note.content }}</p>
+              <div v-if="note?.content" v-html="renderMarkdown(note.content)" class="prose max-w-none"></div>
               <p v-else class="text-gray-500">这条笔记暂时没有内容。</p>
             </section>
 
@@ -182,6 +182,10 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, Sparkles, Edit3, Trash2, Share2, FileText, ListChecks, Tags, Tag } from 'lucide-vue-next'
 import { noteApi, friendApi } from '../api'
+import MarkdownIt from 'markdown-it'
+
+const md = new MarkdownIt()
+const renderMarkdown = (text) => md.render(text)
 
 const route = useRoute()
 const router = useRouter()
@@ -282,12 +286,12 @@ const saveEdit = async () => {
 }
 
 const confirmDelete = async () => {
-  if (!confirm('确定要删除这篇笔记吗？')) return
+  if (!confirm('确定要删除这篇笔记吗？删除后可在回收站恢复')) return
   
   try {
-    const res = await noteApi.delete(note.value.id)
+    const res = await noteApi.trash(note.value.id)
     if (res.code === 200) {
-      alert('笔记已删除')
+      alert('笔记已移入回收站')
       router.push('/notes')
     } else {
       alert(res.msg || '删除失败')
@@ -303,9 +307,12 @@ const analyzeNote = async () => {
   try {
     const res = await noteApi.analyze(note.value.id)
     if (res.code === 200 && res.data) {
+      // 1. 更新内存中的数据
       note.value.summary = res.data.summary
       note.value.keyPoints = res.data.keyPoints
       note.value.tagsSuggestion = res.data.tags
+      
+      
       alert('AI分析完成')
     } else {
       alert(res.msg || '分析失败')

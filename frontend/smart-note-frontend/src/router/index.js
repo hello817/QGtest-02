@@ -5,6 +5,7 @@ import NoteDetail from '../views/NoteDetail.vue'
 import Profile from '../views/Profile.vue'
 import SharedNotes from '../views/SharedNotes.vue'
 import SharedNoteDetail from '../views/SharedNoteDetail.vue'
+import Trash from '../views/Trash.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -15,6 +16,7 @@ const routes = [
   { path: '/profile', component: Profile, meta: { title: '个人中心' } },
   { path: '/shared', component: SharedNotes, meta: { title: '分享笔记' } },
   { path: '/shared/:id', component: SharedNoteDetail, meta: { title: '笔记详情' } },
+  { path: '/trash', component: Trash, meta: { title: '回收站' } },
   { path: '/logout', redirect: () => {
     localStorage.removeItem('token')
     localStorage.removeItem('userInfo')
